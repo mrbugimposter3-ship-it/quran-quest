@@ -1,38 +1,57 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Quran Quest — The Emerald Vale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box}html,body{margin:0;height:100%;overflow:hidden;background:#04140c;font-family:Cinzel,Georgia,serif;color:#e8f5e0}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;overflow:hidden;background:#04140c;font-family:Cinzel,Georgia,serif;color:#e8f5e0;touch-action:none;user-select:none}
 canvas{display:block}
 .ar{font-family:Amiri,"Scheherazade New","Noto Naskh Arabic","Traditional Arabic","Times New Roman",serif;direction:rtl}
-.panel{position:absolute;background:linear-gradient(#0d2a1bcc,#06160ecc);border:2px solid #c9a646;border-radius:10px;box-shadow:0 0 18px #2dff9a44,inset 0 0 20px #000a;padding:10px 14px}
-#hud{top:12px;left:12px;width:270px}
-#hud h1{margin:0 0 6px;font-size:17px;color:#ffd97a;text-shadow:0 0 8px #3dffa0}
-.bar{height:12px;background:#0008;border:1px solid #c9a646;border-radius:6px;overflow:hidden}#xp{height:100%;width:0;background:linear-gradient(90deg,#1fae5c,#9dffb5);transition:width .6s}
-#quest{top:12px;right:12px;width:290px;max-height:70vh;overflow:auto;font-size:13px}
-#quest h2{font-size:15px;margin:2px 0 6px;color:#ffd97a}.q{margin:3px 0;opacity:.85}.q.done{color:#7dffa8;opacity:1}.q.done:before{content:"✦ "}.q:not(.done):before{content:"◇ "}
-#hint{bottom:16px;left:50%;transform:translateX(-50%);font-size:14px;text-align:center}
-#prompt{bottom:70px;left:50%;transform:translateX(-50%);display:none;color:#ffe9a0;font-size:16px}
-#dlg{inset:0;margin:auto;width:min(760px,94vw);height:fit-content;max-height:92vh;overflow:auto;display:none;text-align:center;padding:18px 22px}
-#dlg h2{margin:0;color:#ffd97a}.verse{font-size:34px;line-height:2;color:#fff8dc;text-shadow:0 0 10px #3dffa055;margin:6px 0}
+.panel{position:absolute;background:linear-gradient(#0d2a1bd9,#06160ed9);border:2px solid #c9a646;border-radius:12px;box-shadow:0 0 18px #2dff9a33,inset 0 0 20px #000a;padding:10px 14px;backdrop-filter:blur(3px)}
+.fadein{animation:fi .35s ease}@keyframes fi{from{opacity:0;transform:translateY(8px) scale(.98)}}
+#hud{top:10px;left:10px;width:270px}
+#hud h1{margin:0 0 6px;font-size:16px;color:#ffd97a;text-shadow:0 0 8px #3dffa0}
+.bar{height:10px;background:#0008;border:1px solid #c9a646;border-radius:6px;overflow:hidden}#xp,#sp{height:100%;width:0;background:linear-gradient(90deg,#1fae5c,#9dffb5);transition:width .6s}#sp{background:linear-gradient(90deg,#c9962b,#ffe9a6)}
+.row{display:flex;justify-content:space-between;font-size:12px;margin-top:5px;font-family:Georgia,serif}
+#clock{font-size:22px;color:#ffe9a0;font-family:Georgia,serif;letter-spacing:1px;text-shadow:0 0 8px #ffd97a88}
+#mini{top:auto;bottom:10px;right:10px;padding:4px;border-radius:50%;width:170px;height:170px}#mini canvas{border-radius:50%}
+#quest{top:10px;right:10px;width:250px;max-height:calc(100vh - 210px);overflow:auto;font-size:12px}
+#quest h2{font-size:14px;margin:2px 0 6px;color:#ffd97a}.q{margin:2px 0;opacity:.7}.q.done{color:#7dffa8;opacity:1}.q.done:before{content:"✦ "}.q:not(.done):before{content:"◇ "}
+#compass{top:12px;left:50%;transform:translateX(-50%);font-size:13px;text-align:center;padding:6px 14px;white-space:nowrap}#arrow{display:inline-block;color:#9dffb5;font-size:20px;transition:transform .1s;margin-right:6px}
+#prompt{bottom:90px;left:50%;transform:translateX(-50%);display:none;color:#ffe9a0;font-size:15px;text-align:center;cursor:pointer}
+.modal{inset:0;margin:auto;width:min(780px,95vw);height:fit-content;max-height:92vh;overflow:auto;display:none;text-align:center;padding:18px 22px;z-index:4}
+.modal h2{margin:0;color:#ffd97a}.verse{font-size:clamp(24px,4.5vw,34px);line-height:2;color:#fff8dc;text-shadow:0 0 10px #3dffa055;margin:6px 0}
 .tr{font-family:Georgia,serif;font-style:italic;color:#bfe8c8}.en{font-family:Georgia,serif;color:#e8f5e0;margin:6px 0 10px}
 .tiles{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;direction:rtl;min-height:58px;padding:8px;border:1px dashed #c9a64688;border-radius:8px;margin:8px 0}
-.tile{font-family:Amiri,serif;font-size:26px;padding:2px 14px;background:linear-gradient(#1d5a37,#0f3a22);border:1px solid #c9a646;border-radius:8px;cursor:pointer;color:#fff8dc;transition:.15s}
+.tile{font-family:Amiri,serif;font-size:clamp(19px,3.5vw,25px);padding:2px 12px;background:linear-gradient(#1d5a37,#0f3a22);border:1px solid #c9a646;border-radius:8px;cursor:pointer;color:#fff8dc;transition:transform .15s,box-shadow .15s;animation:fi .25s}
 .tile:hover{transform:translateY(-2px);box-shadow:0 0 10px #3dffa0}
-button.b{font-family:Cinzel,serif;font-size:15px;background:linear-gradient(#2e7d4f,#145232);color:#fff;border:1px solid #ffd97a;border-radius:8px;padding:8px 18px;cursor:pointer;margin:4px}
-button.b:hover{filter:brightness(1.2)}.msg{min-height:24px;font-family:Georgia,serif}.bad{color:#ff9b8a}.good{color:#8dffad}
-#toast{top:30%;left:50%;transform:translateX(-50%);display:none;font-size:30px;color:#ffd97a;text-shadow:0 0 16px #3dffa0;background:none;border:none;box-shadow:none}
-#title{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(#0d3a22ee,#020a06f5);border:none;border-radius:0;z-index:5}
-#title h1{font-size:54px;margin:0;color:#ffd97a;text-shadow:0 0 20px #3dffa0;letter-spacing:4px}#title p{max-width:560px;text-align:center;font-family:Georgia,serif;line-height:1.6}
+button.b{font-family:Cinzel,serif;font-size:14px;background:linear-gradient(#2e7d4f,#145232);color:#fff;border:1px solid #ffd97a;border-radius:8px;padding:7px 16px;cursor:pointer;margin:4px;transition:filter .15s}
+button.b:hover{filter:brightness(1.25)}button.sm{font-size:12px;padding:4px 10px}.msg{min-height:24px;font-family:Georgia,serif}.bad{color:#ff9b8a}.good{color:#8dffad}
+#toast{top:28%;left:50%;transform:translateX(-50%);display:none;font-size:28px;color:#ffd97a;text-shadow:0 0 16px #3dffa0;background:none;border:none;box-shadow:none;text-align:center;pointer-events:none;z-index:6}
+#title{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(#0d3a22ee,#020a06f5);border:none;border-radius:0;z-index:5;padding:20px}
+#title h1{font-size:clamp(34px,7vw,54px);margin:0;color:#ffd97a;text-shadow:0 0 20px #3dffa0;letter-spacing:4px}#title p{max-width:580px;text-align:center;font-family:Georgia,serif;line-height:1.6}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-top:10px;text-align:left}
+.card{border:1px solid #c9a64699;border-radius:9px;padding:7px 9px;background:#0a2416;cursor:pointer;font-family:Georgia,serif;font-size:12px;transition:.15s}
+.card:hover{border-color:#ffd97a;box-shadow:0 0 10px #3dffa066;transform:translateY(-1px)}.card.act{border-color:#9dffb5;box-shadow:0 0 12px #3dffa0}.card.fin{background:#2a2a0e}
+.card b{font-family:Cinzel,serif;font-size:13px;color:#ffd97a}.card .ar{float:right;font-size:17px}
+#touch{display:none}.touchui #touch{display:block}
+#joy{position:absolute;left:24px;bottom:24px;width:130px;height:130px;border-radius:50%;border:2px solid #c9a64699;background:#0a241666;z-index:3}#knob{position:absolute;left:40px;top:40px;width:50px;height:50px;border-radius:50%;background:#2fbf71aa;border:2px solid #ffd97a}
+#act{position:absolute;right:24px;bottom:200px;width:80px;height:80px;border-radius:50%;font-size:22px;z-index:3}
+.touchui #mini{width:130px;height:130px}.touchui #quest{display:none}
+@media (max-width:700px){#quest{display:none}#hud{width:210px;font-size:11px}#compass{top:auto;bottom:170px}}
 </style></head><body>
-<div id="title" class="panel"><div class="ar" style="font-size:40px;color:#bfffd0">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div><h1>QURAN QUEST</h1><h3 style="margin:4px;color:#9dffb5">The Emerald Vale</h3>
-<p>Wander the green valley as a seeker. Each glowing jade shrine holds one ayah. Read it, reflect on it, then restore it from memory to light the shrine.<br><b>WASD</b> move · <b>Shift</b> run · <b>Space</b> jump · drag <b>mouse</b> to turn the camera · wheel to zoom · <b>E</b> to approach a shrine</p>
+<div id="title" class="panel"><div class="ar" style="font-size:clamp(28px,6vw,40px);color:#bfffd0">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div><h1>QURAN QUEST</h1><h3 style="margin:4px;color:#9dffb5">The Emerald Vale</h3>
+<p>Wander the green valley as a seeker. Each glowing jade shrine holds one ayah. Read it, reflect, then restore it from memory to light the shrine. Begin with Al-Fātiḥah, then choose any surah of Juz ʿAmma at the <b>Portal of Surahs</b>.<br>
+<b>WASD</b> move · <b>Shift</b> run · <b>Space</b> jump · drag mouse to look · wheel zoom · <b>E</b> interact · <b>M</b> surah book<br><i>On touch screens: joystick to move, drag to look, ✦ to interact.</i></p>
 <button class="b" id="start">Begin the Journey</button><button class="b" id="reset" style="opacity:.7">Reset progress</button></div>
-<div id="hud" class="panel"><h1>Seeker · Level <span id="lvl">1</span></h1><div class="bar"><div id="xp"></div></div><div style="font-size:12px;margin-top:4px"><span id="xpt"></span> · Shrines lit: <span id="lit"></span></div></div>
+<div id="hud" class="panel"><h1>Seeker · Level <span id="lvl">1</span></h1><div class="bar"><div id="xp"></div></div><div class="row"><span id="xpt"></span><span id="tot"></span></div>
+<hr style="border-color:#c9a64655"><div style="font-size:13px;color:#9dffb5" id="sname"></div><div class="bar" style="margin-top:4px"><div id="sp"></div></div>
+<div class="row"><span>⏱ <span id="clock">0:00</span></span><span id="eta"></span></div><div class="row"><span id="best"></span><span id="sprog"></span></div>
+<button class="b sm" id="book" style="margin:6px 0 0">📖 Surah Book (M)</button><button class="b sm" id="restart" style="margin:6px 0 0">↻ Retry</button></div>
+<div id="compass" class="panel"><span id="arrow">➤</span><span id="near">—</span></div>
 <div id="quest" class="panel"><h2>📜 Quest Log</h2><div id="ql"></div></div>
-<div id="hint" class="panel">Follow the glowing shrines · nearest unlit: <span id="near">—</span></div>
-<div id="prompt" class="panel">Press <b>E</b> to approach the shrine</div>
-<div id="dlg" class="panel"></div><div id="toast" class="panel"></div>
+<div id="mini" class="panel"><canvas id="mc" width="320" height="320" style="width:100%;height:100%"></canvas></div>
+<div id="prompt" class="panel"></div>
+<div id="dlg" class="panel modal"></div><div id="sel" class="panel modal"></div><div id="toast" class="panel"></div>
+<div id="touch"><div id="joy"><div id="knob"></div></div><button class="b" id="act">✦</button></div>
 <script src="data.js"></script>
 <script type="importmap">{"imports":{"three":"./lib/three.module.js"}}</script>
 <script type="module" src="game.js"></script>
